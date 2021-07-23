@@ -1,6 +1,7 @@
 import Head from "next/head";
+import { getCharacters } from "../infrastructure/services/marvel";
 
-export default function Home() {
+export default function Home({ characters }: any) {
   return (
     <div>
       <Head>
@@ -9,7 +10,25 @@ export default function Home() {
       </Head>
       <main>
         <h1>Marvel API</h1>
+        {characters?.map((character: any) => (
+          <div key={character.id}>
+            <h2>{character.name}</h2>
+          </div>
+        ))}
       </main>
     </div>
   );
+}
+
+export async function getStaticProps() {
+  const response = await getCharacters({ limit: 10 });
+
+  console.log(response);
+
+  return {
+    props: {
+      characters: response.results ,
+    },
+    revalidate: 24 * 60 * 60,
+  };
 }
