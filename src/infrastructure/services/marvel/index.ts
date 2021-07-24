@@ -73,7 +73,9 @@ type ApiResponse<T> = {
   };
 };
 
-const marvelApi = api<ApiFunctionProps>("https://gateway.marvel.com/v1/public");
+const marvelApi = api<ApiFunctionProps>(
+  process.env.NEXT_PUBLIC_MARVEL_API_URL!
+);
 
 async function getCharacters({
   offset = 0,
@@ -99,6 +101,22 @@ async function getCharacters({
 async function getCharacterDetail({ id }: ApiFunctionProps) {
   const { data: response } = await marvelApi.get<ApiResponse<Character>>(
     `characters/${id}`
+  );
+
+  return response.data;
+}
+
+async function getCharacterComics({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Comic>>(
+    `characters/${id}/comics`
+  );
+
+  return response.data;
+}
+
+async function getCharacterEvents({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Event>>(
+    `characters/${id}/events`
   );
 
   return response.data;
@@ -194,6 +212,8 @@ async function getEventDetail({ id }: ApiFunctionProps) {
 export {
   getCharacters,
   getCharacterDetail,
+  getCharacterComics,
+  getCharacterEvents,
   getComics,
   getComicDetail,
   getCreators,
