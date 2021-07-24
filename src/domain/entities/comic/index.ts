@@ -19,7 +19,7 @@ interface Comic {
   pageCount: number;
   resourceURI: string;
   thumbnail: Thumbnail;
-  events: Partial<Event>[];
+  events: List<Event>;
   characters: List<Character>;
   creators: List<Creator>;
   prices: Price[];
