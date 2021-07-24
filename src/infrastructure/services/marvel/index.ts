@@ -77,7 +77,7 @@ const marvelApi = api<ApiFunctionProps>("https://gateway.marvel.com/v1/public");
 
 async function getCharacters({
   offset = 0,
-  orderBy = CharacterOrderBy.NAME,
+  orderBy = CharacterOrderBy.MODIFIED,
   limit = 100,
   name,
   nameStartsWith,
