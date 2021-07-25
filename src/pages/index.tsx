@@ -77,8 +77,8 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {character.events.available > 0 && (
                       <Link
                         passHref
-                        href="/characters/:id/events"
-                        as={`/characters/${character.id}/events`}
+                        href="/characters/:name/:id/events"
+                        as={`/characters/${character.name}/${character.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{character.events.available}</var>
@@ -108,7 +108,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
             {comics?.map((comic) => (
               <CardContainer
                 key={comic.id}
-                onClick={handleNavigate(`/comics/${comic.id}`)}
+                onClick={handleNavigate(`/comics/${comic.title}/${comic.id}`)}
                 alt={`Ir para detalhes de ${comic.title}`}
                 title={`Ir para detalhes de ${comic.title}`}
               >
@@ -126,8 +126,8 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {comic.characters.available > 0 && (
                       <Link
                         passHref
-                        href="/comics/:id/characters"
-                        as={`/comics/${comic.id}/characters`}
+                        href="/comics/:title/:id/characters"
+                        as={`/comics/${comic.title}/${comic.id}/characters`}
                       >
                         <Card.Link>
                           Personagens: <var>{comic.characters.available}</var>
@@ -137,8 +137,8 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {comic.events.available > 0 && (
                       <Link
                         passHref
-                        href="/comics/:id/events"
-                        as={`/comics/${comic.id}/events`}
+                        href="/comics/:title/:id/events"
+                        as={`/comics/${comic.title}/${comic.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{comic.events.available}</var>
@@ -157,7 +157,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
             {events?.map((event) => (
               <CardContainer
                 key={event.id}
-                onClick={handleNavigate(`/events/${event.id}`)}
+                onClick={handleNavigate(`/events/${event.title}/${event.id}`)}
                 alt={`Ir para detalhes de ${event.title}`}
                 title={`Ir para detalhes de ${event.title}`}
               >
@@ -175,8 +175,8 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {event.characters.available > 0 && (
                       <Link
                         passHref
-                        href="/events/:id/characters"
-                        as={`/events/${event.id}/characters`}
+                        href="/events/:title/:id/characters"
+                        as={`/events/${event.title}/${event.id}/characters`}
                       >
                         <Card.Link>
                           Personagens: <var>{event.characters.available}</var>
@@ -186,8 +186,8 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {event.comics.available > 0 && (
                       <Link
                         passHref
-                        href="/events/:id/events"
-                        as={`/events/${event.id}/events`}
+                        href="/events/:title/:id/events"
+                        as={`/events/${event.title}/${event.id}/events`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{event.comics.available}</var>
