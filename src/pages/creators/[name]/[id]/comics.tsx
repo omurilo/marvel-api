@@ -85,7 +85,11 @@ const CharacterComicsPage = ({
                     </p>
                   ))}
                 </p>
-                <Link passHref href={`/comics/:id`} as={`/comics/${comic.id}`}>
+                <Link
+                  passHref
+                  href={`/comics/:title/:id`}
+                  as={`/comics/${comic.title}/${comic.id}`}
+                >
                   <a>Ver mais</a>
                 </Link>
               </div>
@@ -101,7 +105,10 @@ export const getStaticPaths = async () => {
   const response = await getCreators({ limit: 14 });
 
   const paths = response.results.map((creator) => ({
-    params: { id: String(creator.id), name: creator.firstName },
+    params: {
+      id: String(creator.id),
+      name: creator.firstName || creator.fullName,
+    },
   }));
 
   return {

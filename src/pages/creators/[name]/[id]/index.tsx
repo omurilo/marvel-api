@@ -50,7 +50,10 @@ export const getStaticPaths = async () => {
   const response = await getCreators({ limit: 14 });
 
   const paths = response.results.map((creator) => ({
-    params: { id: String(creator.id), name: creator.firstName },
+    params: {
+      id: String(creator.id),
+      name: creator.firstName || creator.fullName,
+    },
   }));
 
   return {
@@ -70,6 +73,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     props: {
       creator: response.results[0],
     },
+    revalidate: 24 * 60 * 60,
   };
 };
 
