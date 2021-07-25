@@ -12,8 +12,8 @@ const CardContainer = styled.article`
     position: relative;
     z-index: 1;
     width: 15rem;
-    height: 23rem;
-    max-height: 25rem;
+    height: 27rem;
+    max-height: 28rem;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.08),
       0 2px 10px 0 rgba(0, 0, 0, 0.05);
     cursor: pointer;
@@ -38,7 +38,7 @@ const CardContainer = styled.article`
     & > figure {
       position: relative;
       width: 100%;
-      height: 220px;
+      height: 15rem;
       padding: 0;
       margin: 0;
     }
@@ -111,7 +111,7 @@ const CardTitle = styled.h2`
 `;
 
 const CardDescription = styled.div`
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 
   & > div {
     position: relative;
@@ -140,8 +140,15 @@ const CardDescription = styled.div`
   }
 `;
 
-const CardElement = memo((props: { children: JSX.Element }) => {
-  return <CardContainer>{props.children}</CardContainer>;
+type CardElementProps = {
+  children: JSX.Element;
+  onClick?: () => void;
+  alt?: string;
+  title?: string;
+};
+
+const CardElement = memo(({ children, ...props }: CardElementProps) => {
+  return <CardContainer {...props}>{children}</CardContainer>;
 });
 
 CardElement.displayName = "Card";

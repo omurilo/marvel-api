@@ -3,9 +3,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
-import Character from "domain/entities/character";
-import { getCharacters } from "infrastructure/services/marvel";
 import useIntersectionObserver from "application/hooks/useIntersectionObserver";
+import { getComics } from "infrastructure/services/marvel";
+import Comic from "domain/entities/comic";
 
 import CardContainer, { Card } from "ui/components/Card";
 import Header from "ui/components/Header";
@@ -16,28 +16,28 @@ import { Loading } from "ui/components/Loading";
 import useScreenOrientation from "../../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
-  characters: Character[];
+  comics: Comic[];
   total: number;
   limit: number;
   offset: number;
 };
 
-export default function Characters({
-  characters: initialCharacters,
+export default function Comics({
+  comics: initialComics,
   total,
   limit,
   offset: initialOffset,
 }: HomePageProps) {
   const [offset, setOffset] = useState(Number(initialOffset));
-  const [characters, setCharacters] = useState(initialCharacters);
+  const [comics, setComics] = useState(initialComics);
 
   const router = useRouter();
   const orientation = useScreenOrientation();
   const observerRef = useRef(null);
   const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
 
-  const handleNavigate = (character: Character) => () => {
-    router.push(`/characters/${character.name}/${character.id}`);
+  const handleNavigate = (url: string) => () => {
+    router.push(url);
   };
 
   useEffect(() => {
@@ -51,8 +51,8 @@ export default function Characters({
   useEffect(() => {
     if (offset > initialOffset) {
       if (offset < Number(total)) {
-        getCharacters({ offset, limit }).then((response) =>
-          setCharacters((past) => [...past, ...response.results])
+        getComics({ offset, limit }).then((response) =>
+          setComics((past) => [...past, ...response.results])
         );
       }
     }
@@ -61,62 +61,62 @@ export default function Characters({
   return (
     <div>
       <Head>
-        <title>Personagens - Marvel Comics</title>
+        <title>Quadrinhos - Marvel Comics</title>
         <meta
-          name="description"
-          content="Lista de personagens da Marvel Comics"
+          title="description"
+          content="Lista de quadrinhos da Marvel Comics"
         />
       </Head>
       <Header />
       <main>
         <Container>
-          <SectionTitle>Personagens</SectionTitle>
+          <SectionTitle>Quadrinhos</SectionTitle>
           <div>
-            {characters?.map((character) => (
+            {comics?.map((comics) => (
               <CardContainer
-                key={character.id}
-                onClick={handleNavigate(character)}
-                alt={`Ir para detalhes de ${character.name}`}
-                title={`Ir para detalhes de ${character.name}`}
+                key={comics.id}
+                onClick={handleNavigate(``)}
+                alt={`Ir para detalhes de ${comics.title}`}
+                title={`Ir para detalhes de ${comics.title}`}
               >
                 <>
                   <figure>
                     <Card.Image
-                      src={`${character.thumbnail.path}/${orientation}_fantastic.${character.thumbnail.extension}`}
-                      alt={character.name}
+                      src={`${comics.thumbnail.path}/${orientation}_fantastic.${comics.thumbnail.extension}`}
+                      alt={comics.title}
                       layout="fill"
                       objectFit="fill"
                     />
                   </figure>
                   <Card.Header>
-                    <Card.Title>{character.name}</Card.Title>
-                    {character.description && (
+                    <Card.Title>{comics.title}</Card.Title>
+                    {comics.description && (
                       <Card.Description>
-                        {character.description?.slice(0, 64)}
+                        {comics.description?.slice(0, 64)}
                         <>
                           ...<div>Ver mais</div>
                         </>
                       </Card.Description>
                     )}
-                    {character.events.available > 0 && (
+                    {comics.events.available > 0 && (
                       <Link
                         passHref
-                        href="/characters/:name/:id/events"
-                        as={`/characters/${character.name}/${character.id}/events`}
+                        href="/comics/:title/:id/events"
+                        as={`/comics/${comics.title}/${comics.id}/events`}
                       >
                         <Card.Link>
-                          Eventos: <var>{character.events.available}</var>
+                          Eventos: <var>{comics.events.available}</var>
                         </Card.Link>
                       </Link>
                     )}
-                    {character.comics.available > 0 && (
+                    {comics.characters.available > 0 && (
                       <Link
                         passHref
-                        href="/characters/:name/:id/comics/"
-                        as={`/characters/${character.name}/${character.id}/comics`}
+                        href="/comics/:title/:id/characters"
+                        as={`/comics/${comics.title}/${comics.id}/characters`}
                       >
                         <Card.Link>
-                          Quadrinhos: <var>{character.comics.available}</var>
+                          Personagens: <var>{comics.characters.available}</var>
                         </Card.Link>
                       </Link>
                     )}
@@ -136,14 +136,14 @@ export default function Characters({
 }
 
 export async function getStaticProps() {
-  const response = await getCharacters({ limit: 36 });
+  const response = await getComics({ limit: 36 });
 
   return {
     props: {
       offset: response.offset,
       limit: response.limit,
       total: response.total,
-      characters: response.results,
+      comics: response.results,
     },
     revalidate: 24 * 60 * 60,
   };

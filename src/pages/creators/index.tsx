@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
-import Character from "domain/entities/character";
-import { getCharacters } from "infrastructure/services/marvel";
+import Creator from "domain/entities/creator";
+import { getCreators } from "infrastructure/services/marvel";
 import useIntersectionObserver from "application/hooks/useIntersectionObserver";
 
 import CardContainer, { Card } from "ui/components/Card";
@@ -16,28 +16,28 @@ import { Loading } from "ui/components/Loading";
 import useScreenOrientation from "../../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
-  characters: Character[];
+  creators: Creator[];
   total: number;
   limit: number;
   offset: number;
 };
 
-export default function Characters({
-  characters: initialCharacters,
+export default function Creators({
+  creators: initialCreators,
   total,
   limit,
   offset: initialOffset,
 }: HomePageProps) {
   const [offset, setOffset] = useState(Number(initialOffset));
-  const [characters, setCharacters] = useState(initialCharacters);
+  const [creators, setCreators] = useState(initialCreators);
 
   const router = useRouter();
   const orientation = useScreenOrientation();
   const observerRef = useRef(null);
   const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
 
-  const handleNavigate = (character: Character) => () => {
-    router.push(`/characters/${character.name}/${character.id}`);
+  const handleNavigate = (url: string) => () => {
+    router.push(url);
   };
 
   useEffect(() => {
@@ -51,8 +51,8 @@ export default function Characters({
   useEffect(() => {
     if (offset > initialOffset) {
       if (offset < Number(total)) {
-        getCharacters({ offset, limit }).then((response) =>
-          setCharacters((past) => [...past, ...response.results])
+        getCreators({ offset, limit }).then((response) =>
+          setCreators((past) => [...past, ...response.results])
         );
       }
     }
@@ -61,62 +61,72 @@ export default function Characters({
   return (
     <div>
       <Head>
-        <title>Personagens - Marvel Comics</title>
+        <title>Criadores - Marvel Comics</title>
         <meta
           name="description"
-          content="Lista de personagens da Marvel Comics"
+          content="Lista de criadores da Marvel Comics"
         />
       </Head>
       <Header />
       <main>
         <Container>
-          <SectionTitle>Personagens</SectionTitle>
+          <SectionTitle>Criadores</SectionTitle>
           <div>
-            {characters?.map((character) => (
+            {creators?.map((creator) => (
               <CardContainer
-                key={character.id}
-                onClick={handleNavigate(character)}
-                alt={`Ir para detalhes de ${character.name}`}
-                title={`Ir para detalhes de ${character.name}`}
+                key={creator.id}
+                onClick={handleNavigate(
+                  `/creators/${creator.firstName.replace(/\W*/, "")}/${
+                    creator.id
+                  }`
+                )}
+                alt={`Ir para detalhes de ${creator.fullName}`}
+                title={`Ir para detalhes de ${creator.fullName}`}
               >
                 <>
                   <figure>
                     <Card.Image
-                      src={`${character.thumbnail.path}/${orientation}_fantastic.${character.thumbnail.extension}`}
-                      alt={character.name}
+                      src={`${creator.thumbnail.path}/${orientation}_fantastic.${creator.thumbnail.extension}`}
+                      alt={creator.fullName}
                       layout="fill"
                       objectFit="fill"
                     />
                   </figure>
                   <Card.Header>
-                    <Card.Title>{character.name}</Card.Title>
-                    {character.description && (
+                    <Card.Title>{creator.fullName}</Card.Title>
+                    {creator.description && (
                       <Card.Description>
-                        {character.description?.slice(0, 64)}
+                        {creator.description?.slice(0, 64)}
                         <>
                           ...<div>Ver mais</div>
                         </>
                       </Card.Description>
                     )}
-                    {character.events.available > 0 && (
+                    {creator.events.available > 0 && (
                       <Link
                         passHref
-                        href="/characters/:name/:id/events"
-                        as={`/characters/${character.name}/${character.id}/events`}
+                        href="/creators/:name/:id/events"
+                        as={`/creators/${creator.firstName.replace(
+                          /\W*/,
+                          ""
+                        )}/${creator.id}/events`}
                       >
                         <Card.Link>
-                          Eventos: <var>{character.events.available}</var>
+                          Eventos: <var>{creator.events.available}</var>
                         </Card.Link>
                       </Link>
                     )}
-                    {character.comics.available > 0 && (
+                    {creator.comics.available > 0 && (
                       <Link
                         passHref
-                        href="/characters/:name/:id/comics/"
-                        as={`/characters/${character.name}/${character.id}/comics`}
+                        href="/creators/:name/:id/comics/"
+                        as={`/creators/${creator.firstName.replace(
+                          /\W*/,
+                          ""
+                        )}/${creator.id}/comics`}
                       >
                         <Card.Link>
-                          Quadrinhos: <var>{character.comics.available}</var>
+                          Quadrinhos: <var>{creator.comics.available}</var>
                         </Card.Link>
                       </Link>
                     )}
@@ -136,14 +146,14 @@ export default function Characters({
 }
 
 export async function getStaticProps() {
-  const response = await getCharacters({ limit: 36 });
+  const response = await getCreators({ limit: 36 });
 
   return {
     props: {
       offset: response.offset,
       limit: response.limit,
       total: response.total,
-      characters: response.results,
+      creators: response.results,
     },
     revalidate: 24 * 60 * 60,
   };

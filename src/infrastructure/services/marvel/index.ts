@@ -124,7 +124,7 @@ async function getCharacterEvents({ id }: ApiFunctionProps) {
 
 async function getComics({
   offset = 0,
-  orderBy = ComicOrderBy.FOCDATE,
+  orderBy = ComicOrderBy.DESCFOCDATE,
   limit = 100,
   title = undefined,
 }: ApiFunctionProps) {
@@ -142,6 +142,22 @@ async function getComicDetail({ id }: ApiFunctionProps) {
   const { data: response } = await marvelApi.get<ApiResponse<Comic>>(
     `comics/${id}`
   );
+  return response.data;
+}
+
+async function getComicEvents({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Event>>(
+    `comics/${id}/events`
+  );
+
+  return response.data;
+}
+
+async function getComicCharacters({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Character>>(
+    `comics/${id}/characters`
+  );
+
   return response.data;
 }
 
@@ -181,23 +197,36 @@ async function getCreatorDetail({ id }: ApiFunctionProps) {
   return response.data;
 }
 
+async function getCreatorEvents({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Event>>(
+    `creators/${id}/events`
+  );
+
+  return response.data;
+}
+
+async function getCreatorComics({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Comic>>(
+    `creators/${id}/comics`
+  );
+
+  return response.data;
+}
+
 async function getEvents({
   offset = 0,
-  orderBy = EventsOrderBy.STARTDATE,
+  orderBy = EventsOrderBy.DESCSTARTDATE,
   limit = 100,
   name = undefined,
   nameStartsWith = undefined,
 }: ApiFunctionProps) {
-  const { data: response } = await marvelApi.get<ApiResponse<Character>>(
-    "events",
-    {
-      offset,
-      limit,
-      orderBy,
-      name,
-      nameStartsWith,
-    }
-  );
+  const { data: response } = await marvelApi.get<ApiResponse<Event>>("events", {
+    offset,
+    limit,
+    orderBy,
+    name,
+    nameStartsWith,
+  });
 
   return response.data;
 }
@@ -209,6 +238,22 @@ async function getEventDetail({ id }: ApiFunctionProps) {
   return response.data;
 }
 
+async function getEventComics({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Comic>>(
+    `events/${id}/comics`
+  );
+
+  return response.data;
+}
+
+async function getEventCharacters({ id }: ApiFunctionProps) {
+  const { data: response } = await marvelApi.get<ApiResponse<Character>>(
+    `events/${id}/characters`
+  );
+
+  return response.data;
+}
+
 export {
   getCharacters,
   getCharacterDetail,
@@ -216,8 +261,14 @@ export {
   getCharacterEvents,
   getComics,
   getComicDetail,
+  getComicEvents,
+  getComicCharacters,
   getCreators,
   getCreatorDetail,
+  getCreatorEvents,
+  getCreatorComics,
   getEvents,
   getEventDetail,
+  getEventComics,
+  getEventCharacters,
 };
