@@ -3,19 +3,7 @@ import styled, { keyframes } from "styled-components";
 const AnimationLoading = keyframes`
   0% { opacity: 0; transform: scale(0); };
   50% { opacity: 1; };
-  100% { opacity: 0; transform: scale(1); };
-`;
-
-const AnimationAfterLoading = keyframes`
-  0% { opacity: 0; transform: scale(0); };
-  50% { opacity: 0.8; };
   100% { opacity: 0; transform: scale(1.5); };
-`;
-
-const AnimationBeforeLoading = keyframes`
-  0% { opacity: 0; transform: scale(0); };
-  50% { opacity: 0.6; };
-  100% { opacity: 0; transform: scale(2); };
 `;
 
 export const Loading = styled.div`

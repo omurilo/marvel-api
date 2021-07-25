@@ -131,7 +131,7 @@ const Header = () => {
     <>
       <HeaderContainer>
         <Link href="/" passHref>
-          <a>
+          <a title="Ir para home">
             <Image
               src={Logo}
               height="52"

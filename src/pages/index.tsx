@@ -15,6 +15,8 @@ import Header from "ui/components/Header";
 import { Container } from "ui/components/Container";
 import Footer from "ui/components/Footer";
 import { SectionTitle } from "ui/components/SectionTitle";
+import { useRouter } from "next/dist/client/router";
+import useScreenOrientation from "../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
   characters: Character[];
@@ -23,6 +25,13 @@ type HomePageProps = {
 };
 
 export default function Home({ characters, comics, events }: HomePageProps) {
+  const router = useRouter();
+  const orientation = useScreenOrientation();
+
+  const handleNavigate = (url: string) => () => {
+    router.push(url);
+  };
+
   return (
     <div>
       <Head>
@@ -38,56 +47,57 @@ export default function Home({ characters, comics, events }: HomePageProps) {
           <SectionTitle>Personagens</SectionTitle>
           <div>
             {characters?.map((character) => (
-              <CardContainer key={character.id}>
-                <Link
-                  href="/characters/:id"
-                  as={`/characters/${character.id}`}
-                  passHref
-                >
-                  <>
-                    <figure>
-                      <Card.Image
-                        src={`${character.thumbnail.path}/standard_fantastic.${character.thumbnail.extension}`}
-                        alt={character.name}
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </figure>
-                    <Card.Header>
-                      <Card.Title>{character.name}</Card.Title>
+              <CardContainer
+                key={character.id}
+                onClick={handleNavigate(
+                  `/characters/${character.name}/${character.id}`
+                )}
+                alt={`Ir para detalhes de ${character.name}`}
+                title={`Ir para detalhes de ${character.name}`}
+              >
+                <>
+                  <figure>
+                    <Card.Image
+                      src={`${character.thumbnail.path}/${orientation}_fantastic.${character.thumbnail.extension}`}
+                      alt={character.name}
+                      layout="fill"
+                      objectFit="fill"
+                    />
+                  </figure>
+                  <Card.Header>
+                    <Card.Title>{character.name}</Card.Title>
+                    {character.description && (
                       <Card.Description>
                         <p>{character.description?.slice(0, 64)}</p>
-                        {character.description && (
-                          <>
-                            ...<div>Ver mais</div>
-                          </>
-                        )}
+                        <>
+                          ...<div>Ver mais</div>
+                        </>
                       </Card.Description>
-                      {character.events.available > 0 && (
-                        <Link
-                          passHref
-                          href="/characters/:id/events"
-                          as={`/characters/${character.id}/events`}
-                        >
-                          <Card.Link>
-                            Eventos: <var>{character.events.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                      {character.comics.available > 0 && (
-                        <Link
-                          passHref
-                          href="/characters/:name/:id/comics/"
-                          as={`/characters/${character.name}/${character.id}/comics`}
-                        >
-                          <Card.Link>
-                            Quadrinhos: <var>{character.comics.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                    </Card.Header>
-                  </>
-                </Link>
+                    )}
+                    {character.events.available > 0 && (
+                      <Link
+                        passHref
+                        href="/characters/:id/events"
+                        as={`/characters/${character.id}/events`}
+                      >
+                        <Card.Link>
+                          Eventos: <var>{character.events.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                    {character.comics.available > 0 && (
+                      <Link
+                        passHref
+                        href="/characters/:name/:id/comics/"
+                        as={`/characters/${character.name}/${character.id}/comics`}
+                      >
+                        <Card.Link>
+                          Quadrinhos: <var>{character.comics.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                  </Card.Header>
+                </>
               </CardContainer>
             ))}
           </div>
@@ -96,44 +106,47 @@ export default function Home({ characters, comics, events }: HomePageProps) {
           <SectionTitle as="h2">Quadrinhos</SectionTitle>
           <div>
             {comics?.map((comic) => (
-              <CardContainer key={comic.id}>
-                <Link href="/comics/:id" as={`/comics/${comic.id}`} passHref>
-                  <>
-                    <figure>
-                      <Card.Image
-                        src={`${comic.thumbnail.path}/standard_fantastic.${comic.thumbnail.extension}`}
-                        alt={comic.title}
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </figure>
-                    <Card.Header>
-                      <Card.Title>{comic.title}</Card.Title>
-                      {comic.characters.available > 0 && (
-                        <Link
-                          passHref
-                          href="/comics/:id/characters"
-                          as={`/comics/${comic.id}/characters`}
-                        >
-                          <Card.Link>
-                            Personagens: <var>{comic.characters.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                      {comic.events.available > 0 && (
-                        <Link
-                          passHref
-                          href="/comics/:id/events"
-                          as={`/comics/${comic.id}/events`}
-                        >
-                          <Card.Link>
-                            Eventos: <var>{comic.events.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                    </Card.Header>
-                  </>
-                </Link>
+              <CardContainer
+                key={comic.id}
+                onClick={handleNavigate(`/comics/${comic.id}`)}
+                alt={`Ir para detalhes de ${comic.title}`}
+                title={`Ir para detalhes de ${comic.title}`}
+              >
+                <>
+                  <figure>
+                    <Card.Image
+                      src={`${comic.thumbnail.path}/standard_fantastic.${comic.thumbnail.extension}`}
+                      alt={comic.title}
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </figure>
+                  <Card.Header>
+                    <Card.Title>{comic.title}</Card.Title>
+                    {comic.characters.available > 0 && (
+                      <Link
+                        passHref
+                        href="/comics/:id/characters"
+                        as={`/comics/${comic.id}/characters`}
+                      >
+                        <Card.Link>
+                          Personagens: <var>{comic.characters.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                    {comic.events.available > 0 && (
+                      <Link
+                        passHref
+                        href="/comics/:id/events"
+                        as={`/comics/${comic.id}/events`}
+                      >
+                        <Card.Link>
+                          Eventos: <var>{comic.events.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                  </Card.Header>
+                </>
               </CardContainer>
             ))}
           </div>
@@ -142,44 +155,47 @@ export default function Home({ characters, comics, events }: HomePageProps) {
           <SectionTitle>Eventos</SectionTitle>
           <div>
             {events?.map((event) => (
-              <CardContainer key={event.id}>
-                <Link href="/events/:id" as={`/events/${event.id}`} passHref>
-                  <>
-                    <figure>
-                      <Card.Image
-                        src={`${event.thumbnail.path}/standard_fantastic.${event.thumbnail.extension}`}
-                        alt={event.title}
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </figure>
-                    <Card.Header>
-                      <h2>{event.title}</h2>
-                      {event.characters.available > 0 && (
-                        <Link
-                          passHref
-                          href="/events/:id/characters"
-                          as={`/events/${event.id}/characters`}
-                        >
-                          <Card.Link>
-                            Personagens: <var>{event.characters.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                      {event.comics.available > 0 && (
-                        <Link
-                          passHref
-                          href="/events/:id/events"
-                          as={`/events/${event.id}/events`}
-                        >
-                          <Card.Link>
-                            Quadrinhos: <var>{event.comics.available}</var>
-                          </Card.Link>
-                        </Link>
-                      )}
-                    </Card.Header>
-                  </>
-                </Link>
+              <CardContainer
+                key={event.id}
+                onClick={handleNavigate(`/events/${event.id}`)}
+                alt={`Ir para detalhes de ${event.title}`}
+                title={`Ir para detalhes de ${event.title}`}
+              >
+                <>
+                  <figure>
+                    <Card.Image
+                      src={`${event.thumbnail.path}/standard_fantastic.${event.thumbnail.extension}`}
+                      alt={event.title}
+                      layout="fill"
+                      objectFit="cover"
+                    />
+                  </figure>
+                  <Card.Header>
+                    <h2>{event.title}</h2>
+                    {event.characters.available > 0 && (
+                      <Link
+                        passHref
+                        href="/events/:id/characters"
+                        as={`/events/${event.id}/characters`}
+                      >
+                        <Card.Link>
+                          Personagens: <var>{event.characters.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                    {event.comics.available > 0 && (
+                      <Link
+                        passHref
+                        href="/events/:id/events"
+                        as={`/events/${event.id}/events`}
+                      >
+                        <Card.Link>
+                          Quadrinhos: <var>{event.comics.available}</var>
+                        </Card.Link>
+                      </Link>
+                    )}
+                  </Card.Header>
+                </>
               </CardContainer>
             ))}
           </div>
