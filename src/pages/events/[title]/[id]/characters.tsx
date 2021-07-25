@@ -66,6 +66,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
       title,
       characters: response.results,
     },
+    revalidate: 24 * 60 * 60,
   };
 };
 

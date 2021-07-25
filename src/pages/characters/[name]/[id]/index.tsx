@@ -77,6 +77,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     props: {
       character: response.results[0],
     },
+    revalidate: 24 * 60 * 60,
   };
 };
 

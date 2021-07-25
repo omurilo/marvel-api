@@ -88,7 +88,11 @@ const CharacterComicsPage = ({
                     </p>
                   ))}
                 </p>
-                <Link passHref href={`/comics/:id`} as={`/comics/${comic.id}`}>
+                <Link
+                  passHref
+                  href={`/comics/:title/:id`}
+                  as={`/comics/${comic.title}/${comic.id}`}
+                >
                   <a>Ver mais</a>
                 </Link>
               </div>
