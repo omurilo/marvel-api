@@ -108,7 +108,11 @@ export default function Home({ characters, comics, events }: HomePageProps) {
             {comics?.map((comic) => (
               <CardContainer
                 key={comic.id}
-                onClick={handleNavigate(`/comics/${comic.title}/${comic.id}`)}
+                onClick={handleNavigate(
+                  `/comics/${comic.title.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                    comic.id
+                  }`
+                )}
                 alt={`Ir para detalhes de ${comic.title}`}
                 title={`Ir para detalhes de ${comic.title}`}
               >
@@ -127,7 +131,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/comics/:title/:id/characters"
-                        as={`/comics/${comic.title}/${comic.id}/characters`}
+                        as={`/comics/${comic.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${comic.id}/characters`}
                       >
                         <Card.Link>
                           Personagens: <var>{comic.characters.available}</var>
@@ -138,7 +145,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/comics/:title/:id/events"
-                        as={`/comics/${comic.title}/${comic.id}/events`}
+                        as={`/comics/${comic.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${comic.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{comic.events.available}</var>

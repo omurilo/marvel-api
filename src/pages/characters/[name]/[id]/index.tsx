@@ -2,6 +2,7 @@ import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import * as React from "react";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   getCharacterComics,
@@ -13,10 +14,10 @@ import {
 import { Container } from "ui/components/Container";
 import Header from "ui/components/Header";
 import { SectionTitle } from "ui/components/SectionTitle";
-import CardContainer, { Card } from "ui/components/Card";
-import SimpleCard from "../../../../ui/components/SimpleCard";
-import Link from "next/link";
-import Banner from "../../../../ui/components/Banner";
+import { Card } from "ui/components/Card";
+import SimpleCard from "ui/components/SimpleCard";
+import Banner from "ui/components/Banner";
+import Footer from "ui/components/Footer";
 import character from "../../../../__mocks__/marvel/character";
 
 const CharacterPage = (
@@ -62,11 +63,13 @@ const CharacterPage = (
             </figure>
             <Banner.Info>
               <Banner.Title>{props.character.name}</Banner.Title>
-              <Banner.Description
-                dangerouslySetInnerHTML={{
-                  __html: props.character.description,
-                }}
-              />
+              {props.character.description && (
+                <Banner.Description
+                  dangerouslySetInnerHTML={{
+                    __html: props.character.description,
+                  }}
+                />
+              )}
               <Link passHref href={props.character.urls[0].url}>
                 <Banner.Link target="_blank">
                   <span>Ver no site Marvel</span>
@@ -75,7 +78,7 @@ const CharacterPage = (
             </Banner.Info>
           </Banner.Container>
         </Container>
-        {character.comics.available > 0 && (
+        {props.character.comics.returned > 0 && (
           <Container>
             <SectionTitle>Últimos lançamentos</SectionTitle>
             <div>
@@ -84,9 +87,10 @@ const CharacterPage = (
                   <Link
                     passHref
                     href="/comics/:title/:id"
-                    as={`/comics/${comic.title?.replace(/\W*/, "")}/${
-                      comic.id
-                    }`}
+                    as={`/comics/${comic.title?.replace(
+                      /[^-a-zA-Z0-9]+/g,
+                      ""
+                    )}/${comic.id}`}
                   >
                     <Card.Link>
                       <SimpleCard.Image
@@ -102,10 +106,26 @@ const CharacterPage = (
                   </Link>
                 </SimpleCard.Container>
               ))}
+              {props.character.comics.available > 5 ? (
+                <SimpleCard.Container>
+                  <Link
+                    passHref
+                    href="/characters/:name/:id/comics"
+                    as={`/characters/${character.name.replace(
+                      /[^a-zA-Z0-9]+/g,
+                      ""
+                    )}/${character.id}/comics`}
+                  >
+                    <Banner.Link>
+                      <span>Ver todos</span>
+                    </Banner.Link>
+                  </Link>
+                </SimpleCard.Container>
+              ) : null}
             </div>
           </Container>
         )}
-        {character.events.available > 0 && (
+        {props.character.events.returned > 0 && (
           <Container>
             <SectionTitle>Últimos Eventos</SectionTitle>
             <div>
@@ -114,9 +134,10 @@ const CharacterPage = (
                   <Link
                     passHref
                     href="/events/:title/:id"
-                    as={`/events/${event.title?.replace(/\W*/, "")}/${
-                      event.id
-                    }`}
+                    as={`/events/${event.title?.replace(
+                      /[^-a-zA-Z0-9]+/g,
+                      ""
+                    )}/${event.id}`}
                   >
                     <Card.Link>
                       <SimpleCard.Image
@@ -132,9 +153,26 @@ const CharacterPage = (
                   </Link>
                 </SimpleCard.Container>
               ))}
+              {props.character.comics.available > 5 ? (
+                <SimpleCard.Container>
+                  <Link
+                    passHref
+                    href="/characters/:name/:id/events"
+                    as={`/characters/${character.name.replace(
+                      /[^a-zA-Z0-9]+/g,
+                      ""
+                    )}/${character.id}/events`}
+                  >
+                    <Banner.Link>
+                      <span>Ver todos</span>
+                    </Banner.Link>
+                  </Link>
+                </SimpleCard.Container>
+              ) : null}
             </div>
           </Container>
         )}
+        <Footer />
       </main>
     </div>
   );
@@ -144,7 +182,10 @@ export const getStaticPaths = async () => {
   const response = await getCharacters({ limit: 14 });
 
   const paths = response.results.map((character) => ({
-    params: { id: String(character.id), name: character.name },
+    params: {
+      id: String(character.id),
+      name: character.name.replace(/[^a-zA-Z0-9]+/g, ""),
+    },
   }));
 
   return {
