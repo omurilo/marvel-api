@@ -2,14 +2,17 @@ import styled, { css, DefaultTheme } from "styled-components";
 
 type ContainerProps = {
   $bgColor?: keyof DefaultTheme["colors"];
+  $row?: boolean;
+  $center?: boolean;
 };
 
 export const Container = styled.section<ContainerProps>`
-  ${({ theme, $bgColor }) => css`
+  ${({ theme, $bgColor, $row, $center }) => css`
     display: flex;
     align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
+    justify-content: ${$center ? "center" : "flex-start"};
+    flex-direction: ${$row ? "row" : "column"};
+    flex-wrap: wrap;
     padding: 0.5rem 4rem;
 
     &:not(:first-of-type) {

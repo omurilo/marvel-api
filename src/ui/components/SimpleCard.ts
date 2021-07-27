@@ -3,15 +3,31 @@ import styled from "styled-components";
 
 const Image = styled(NextImage)``;
 
-const Container = styled.div`
+const Container = styled.article`
   display: flex;
   flex-direction: column;
-  width: 10.5rem;
-  height: 20rem;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 10.5rem;
+  height: fit-content;
+  max-height: 20rem;
 
   &:hover {
     ${Image} {
       transform: scale(1.1);
+    }
+  }
+
+  & > a {
+    margin-top: 0;
+  }
+
+  @media screen and (max-width: 600px) {
+    width: 10.5rem;
+
+    & > a {
+      margin-top: 1rem;
     }
   }
 `;
