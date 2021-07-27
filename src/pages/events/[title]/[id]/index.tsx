@@ -196,10 +196,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const comics = await getEventComics({ id, limit: 5 });
 
   event.characters.items = characters.results;
-  event.characters.available = characters.count;
+  event.characters.returned = characters.count;
 
   event.comics.items = comics.results;
-  event.comics.available = comics.count;
+  event.comics.returned = comics.count;
 
   return {
     props: {
