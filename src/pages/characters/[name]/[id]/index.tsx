@@ -1,13 +1,23 @@
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 
 import {
+  getCharacterComics,
   getCharacterDetail,
+  getCharacterEvents,
   getCharacters,
 } from "infrastructure/services/marvel";
 
 import { Container } from "ui/components/Container";
+import Header from "ui/components/Header";
+import { SectionTitle } from "ui/components/SectionTitle";
+import CardContainer, { Card } from "ui/components/Card";
+import SimpleCard from "../../../../ui/components/SimpleCard";
+import Link from "next/link";
+import Banner from "../../../../ui/components/Banner";
+import character from "../../../../__mocks__/marvel/character";
 
 const CharacterPage = (
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -39,15 +49,92 @@ const CharacterPage = (
         />
       </Head>
       <main>
-        <Container>
-          <div>
-            <h2>{props.character.name}</h2>
-            <p>{props.character.description}</p>
-            <p>
-              <a href={props.character.urls[0].url}>Ver no site Marvel</a>
-            </p>
-          </div>
+        <Header />
+        <Container $bgColor="black">
+          <Banner.Container>
+            <figure>
+              <Image
+                src={`${props.character.thumbnail.path}/portrait_uncanny.${props.character.thumbnail.extension}`}
+                alt={props.character.name}
+                layout="fill"
+                objectFit="fill"
+              />
+            </figure>
+            <Banner.Info>
+              <Banner.Title>{props.character.name}</Banner.Title>
+              <Banner.Description
+                dangerouslySetInnerHTML={{
+                  __html: props.character.description,
+                }}
+              />
+              <Link passHref href={props.character.urls[0].url}>
+                <Banner.Link target="_blank">
+                  <span>Ver no site Marvel</span>
+                </Banner.Link>
+              </Link>
+            </Banner.Info>
+          </Banner.Container>
         </Container>
+        {character.comics.available > 0 && (
+          <Container>
+            <SectionTitle>Últimos lançamentos</SectionTitle>
+            <div>
+              {props.character.comics.items.map((comic) => (
+                <SimpleCard.Container key={comic.id}>
+                  <Link
+                    passHref
+                    href="/comics/:title/:id"
+                    as={`/comics/${comic.title?.replace(/\W*/, "")}/${
+                      comic.id
+                    }`}
+                  >
+                    <Card.Link>
+                      <SimpleCard.Image
+                        src={`${comic.thumbnail!.path}/portrait_fantastic.${
+                          comic.thumbnail!.extension
+                        }`}
+                        alt={comic.title}
+                        width="168"
+                        height="252"
+                      />
+                      <SimpleCard.Title>{comic.title}</SimpleCard.Title>
+                    </Card.Link>
+                  </Link>
+                </SimpleCard.Container>
+              ))}
+            </div>
+          </Container>
+        )}
+        {character.events.available > 0 && (
+          <Container>
+            <SectionTitle>Últimos Eventos</SectionTitle>
+            <div>
+              {props.character.events.items.map((event) => (
+                <SimpleCard.Container key={event.id}>
+                  <Link
+                    passHref
+                    href="/events/:title/:id"
+                    as={`/events/${event.title?.replace(/\W*/, "")}/${
+                      event.id
+                    }`}
+                  >
+                    <Card.Link>
+                      <SimpleCard.Image
+                        src={`${event.thumbnail!.path}/portrait_fantastic.${
+                          event.thumbnail!.extension
+                        }`}
+                        alt={event.title}
+                        width="168"
+                        height="252"
+                      />
+                      <SimpleCard.Title>{event.title}</SimpleCard.Title>
+                    </Card.Link>
+                  </Link>
+                </SimpleCard.Container>
+              ))}
+            </div>
+          </Container>
+        )}
       </main>
     </div>
   );
@@ -71,11 +158,22 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   const { id } = params as { id: string };
 
-  const response = await getCharacterDetail({ id });
+  const {
+    results: [character],
+  } = await getCharacterDetail({ id });
+
+  const comics = await getCharacterComics({ id, limit: 5 });
+  const events = await getCharacterEvents({ id, limit: 5 });
+
+  character.comics.items = comics.results;
+  character.comics.returned = comics.count;
+
+  character.events.items = events.results;
+  character.events.returned = events.count;
 
   return {
     props: {
-      character: response.results[0],
+      character,
     },
     revalidate: 24 * 60 * 60,
   };

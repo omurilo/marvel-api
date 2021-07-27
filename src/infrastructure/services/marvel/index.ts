@@ -106,17 +106,37 @@ async function getCharacterDetail({ id }: ApiFunctionProps) {
   return response.data;
 }
 
-async function getCharacterComics({ id }: ApiFunctionProps) {
+async function getCharacterComics({
+  id,
+  offset = 0,
+  orderBy = ComicOrderBy.DESCFOCDATE,
+  limit = 100,
+}: ApiFunctionProps) {
   const { data: response } = await marvelApi.get<ApiResponse<Comic>>(
-    `characters/${id}/comics`
+    `characters/${id}/comics`,
+    {
+      offset,
+      limit,
+      orderBy,
+    }
   );
 
   return response.data;
 }
 
-async function getCharacterEvents({ id }: ApiFunctionProps) {
+async function getCharacterEvents({
+  id,
+  offset = 0,
+  orderBy = EventsOrderBy.DESCSTARTDATE,
+  limit = 100,
+}: ApiFunctionProps) {
   const { data: response } = await marvelApi.get<ApiResponse<Event>>(
-    `characters/${id}/events`
+    `characters/${id}/events`,
+    {
+      offset,
+      limit,
+      orderBy,
+    }
   );
 
   return response.data;

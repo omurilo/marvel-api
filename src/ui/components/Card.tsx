@@ -82,6 +82,7 @@ const CardHeaderLink = styled.a`
   text-transform: uppercase;
   overflow: hidden;
   padding: 0 0.15rem 0 0;
+  cursor: pointer;
 
   &::after {
     content: "";
