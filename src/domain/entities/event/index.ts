@@ -1,7 +1,7 @@
-import { List, Thumbnail } from "../../utils";
-import Character from "../character";
-import Comic from "../comic";
-import Creator from "../creator";
+import { List, Thumbnail } from "domain/utils";
+import Character from "domain/entities/character";
+import Comic from "domain/entities/comic";
+import Creator from "domain/entities/creator";
 
 export default interface Event {
   id: string;

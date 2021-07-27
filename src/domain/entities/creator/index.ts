@@ -1,5 +1,4 @@
-import { List, Thumbnail, Url } from "../../utils";
-import Character from "../character";
+import { List, Thumbnail, Url } from "domain/utils";
 import Comic from "../comic";
 import Event from "../event";
 

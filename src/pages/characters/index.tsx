@@ -13,7 +13,7 @@ import { Container } from "ui/components/Container";
 import { SectionTitle } from "ui/components/SectionTitle";
 import Footer from "ui/components/Footer";
 import { Loading } from "ui/components/Loading";
-import useScreenOrientation from "../../application/hooks/useScreenOrientation";
+import useScreenOrientation from "application/hooks/useScreenOrientation";
 
 type HomePageProps = {
   characters: Character[];

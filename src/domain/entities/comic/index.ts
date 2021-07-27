@@ -1,7 +1,7 @@
 import Character from "domain/entities/character";
 import Event from "domain/entities/event";
 import Creator from "domain/entities/creator";
-import { Date, List, Price, Summary, Thumbnail } from "../../utils";
+import { Date, List, Price, Summary, Thumbnail } from "domain/utils";
 
 interface Comic {
   id: number;
