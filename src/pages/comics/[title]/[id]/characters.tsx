@@ -1,34 +1,42 @@
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import * as React from "react";
-
-import {
-  getComicCharacters,
-  getCharacters,
-  getComics,
-} from "infrastructure/services/marvel";
 import Link from "next/link";
 import Image from "next/image";
 import Head from "next/head";
 
+import {
+  getComicCharacters,
+  getComics,
+  getComicDetail,
+} from "infrastructure/services/marvel";
+
+import Header from "ui/components/Header";
+import { Container } from "ui/components/Container";
+import Banner from "ui/components/Banner";
+import { SectionTitle } from "ui/components/SectionTitle";
+import SimpleCard from "ui/components/SimpleCard";
+import { Card } from "ui/components/Card";
+import Footer from "ui/components/Footer";
+
 const CharacterComicsPage = ({
-  title,
+  comic,
   characters,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
     <div>
       <Head>
-        <title>Personagens que aparecem no quadrinho {title}</title>
+        <title>Personagens que aparecem no quadrinho {comic.title}</title>
         <meta
           name="description"
-          content={`Lista dos personagens que aparecem no quadrinho ${title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
         />
         <meta
           name="og:title"
-          content={`Personagens que aparecem no quadrinho ${title}`}
+          content={`Personagens que aparecem no quadrinho ${comic.title}`}
         />
         <meta
           name="og:description"
-          content={`Lista dos personagens que aparecem no quadrinho ${title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
         />
         <meta name="og:type" content="article" />
         <meta name="og:site_name" content="Marvel Comics" />
@@ -36,62 +44,67 @@ const CharacterComicsPage = ({
         <meta name="twitter:site" content="@marvel" />
         <meta
           name="twitter:title"
-          content={`Personagens que aparecem no quadrinho ${title}`}
+          content={`Personagens que aparecem no quadrinho ${comic.title}`}
         />
         <meta
           name="twitter:description"
-          content={`Lista dos personagens que aparecem no quadrinho ${title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
         />
       </Head>
       <main>
-        <h1>
-          Personagens do quadrinho: <em>{title}</em>
-        </h1>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 10,
-          }}
-        >
-          {characters?.map((character) => (
-            <div
-              key={character.id}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-                flexBasis: "calc(50% - 10px)",
-              }}
-            >
+        <Header />
+        <Container $bgColor="black">
+          <Banner.Container>
+            <figure>
               <Image
-                src={`${character.thumbnail.path}/portrait_incredible.${character.thumbnail.extension}`}
-                alt={character.name}
-                objectFit="cover"
-                width={216}
-                height={324}
+                src={`${comic.thumbnail.path}/portrait_uncanny.${comic.thumbnail.extension}`}
+                alt={comic.title}
+                layout="fill"
+                objectFit="fill"
               />
-              <div style={{ marginLeft: 10 }}>
-                <h2>{character.name}</h2>
-                <p>
-                  Descrição:{" "}
-                  <p
-                    dangerouslySetInnerHTML={{ __html: character.description }}
-                  />
-                </p>
+            </figure>
+            <Banner.Info>
+              <Banner.Title>{comic.title}</Banner.Title>
+              {comic.description && (
+                <Banner.Description
+                  dangerouslySetInnerHTML={{
+                    __html: comic.description,
+                  }}
+                />
+              )}
+            </Banner.Info>
+          </Banner.Container>
+        </Container>
+        <Container>
+          <SectionTitle>Personagens</SectionTitle>
+          <div>
+            {characters.map((character) => (
+              <SimpleCard.Container key={character.id}>
                 <Link
                   passHref
-                  href={`/characters/:id`}
-                  as={`/characters/${character.id}`}
+                  href="/characters/:title/:id"
+                  as={`/characters/${character.name?.replace(
+                    /[^-a-zA-Z0-9]+/g,
+                    ""
+                  )}/${character.id}`}
                 >
-                  <a>Ver mais</a>
+                  <Card.Link>
+                    <SimpleCard.Image
+                      src={`${character.thumbnail!.path}/portrait_fantastic.${
+                        character.thumbnail!.extension
+                      }`}
+                      alt={character.name}
+                      width="168"
+                      height="252"
+                    />
+                    <SimpleCard.Title>{character.name}</SimpleCard.Title>
+                  </Card.Link>
                 </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+              </SimpleCard.Container>
+            ))}
+          </div>
+        </Container>
+        <Footer />
       </main>
     </div>
   );
@@ -101,7 +114,10 @@ export const getStaticPaths = async () => {
   const response = await getComics({ limit: 14 });
 
   const paths = response.results.map((character) => ({
-    params: { id: String(character.id), title: character.title },
+    params: {
+      id: String(character.id),
+      title: character.title.replace(/[^a-zA-Z0-9]+/g, ""),
+    },
   }));
 
   return {
@@ -113,13 +129,23 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const { params } = context;
 
-  const { id, title } = params as { id: string; title: string };
+  const { id } = params as { id: string };
 
   const response = await getComicCharacters({ id });
 
+  const {
+    results: [{ title, description, thumbnail }],
+  } = await getComicDetail({ id });
+
+  const comic = {
+    title,
+    description: description || null,
+    thumbnail,
+  };
+
   return {
     props: {
-      title,
+      comic,
       characters: response.results,
     },
     revalidate: 24 * 60 * 60,

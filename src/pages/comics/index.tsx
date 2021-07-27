@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import useIntersectionObserver from "application/hooks/useIntersectionObserver";
+import useScreenOrientation from "application/hooks/useScreenOrientation";
 import { getComics } from "infrastructure/services/marvel";
 import Comic from "domain/entities/comic";
 
@@ -13,7 +14,6 @@ import { Container } from "ui/components/Container";
 import { SectionTitle } from "ui/components/SectionTitle";
 import Footer from "ui/components/Footer";
 import { Loading } from "ui/components/Loading";
-import useScreenOrientation from "../../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
   comics: Comic[];
@@ -72,51 +72,61 @@ export default function Comics({
         <Container>
           <SectionTitle>Quadrinhos</SectionTitle>
           <div>
-            {comics?.map((comics) => (
+            {comics?.map((comic) => (
               <CardContainer
-                key={comics.id}
-                onClick={handleNavigate(``)}
-                alt={`Ir para detalhes de ${comics.title}`}
-                title={`Ir para detalhes de ${comics.title}`}
+                key={comic.id}
+                onClick={handleNavigate(
+                  `/comics/${comic.title.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                    comic.id
+                  }`
+                )}
+                alt={`Ir para detalhes de ${comic.title}`}
+                title={`Ir para detalhes de ${comic.title}`}
               >
                 <>
                   <figure>
                     <Card.Image
-                      src={`${comics.thumbnail.path}/${orientation}_fantastic.${comics.thumbnail.extension}`}
-                      alt={comics.title}
+                      src={`${comic.thumbnail.path}/${orientation}_fantastic.${comic.thumbnail.extension}`}
+                      alt={comic.title}
                       layout="fill"
                       objectFit="fill"
                     />
                   </figure>
                   <Card.Header>
-                    <Card.Title>{comics.title}</Card.Title>
-                    {comics.description && (
+                    <Card.Title>{comic.title}</Card.Title>
+                    {comic.description && (
                       <Card.Description>
-                        {comics.description?.slice(0, 64)}
+                        {comic.description?.slice(0, 64)}
                         <>
                           ...<div>Ver mais</div>
                         </>
                       </Card.Description>
                     )}
-                    {comics.events.available > 0 && (
+                    {comic.events.available > 0 && (
                       <Link
                         passHref
                         href="/comics/:title/:id/events"
-                        as={`/comics/${comics.title}/${comics.id}/events`}
+                        as={`/comics/${comic.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${comic.id}/events`}
                       >
                         <Card.Link>
-                          Eventos: <var>{comics.events.available}</var>
+                          Eventos: <var>{comic.events.available}</var>
                         </Card.Link>
                       </Link>
                     )}
-                    {comics.characters.available > 0 && (
+                    {comic.characters.available > 0 && (
                       <Link
                         passHref
                         href="/comics/:title/:id/characters"
-                        as={`/comics/${comics.title}/${comics.id}/characters`}
+                        as={`/comics/${comic.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${comic.id}/characters`}
                       >
                         <Card.Link>
-                          Personagens: <var>{comics.characters.available}</var>
+                          Personagens: <var>{comic.characters.available}</var>
                         </Card.Link>
                       </Link>
                     )}
