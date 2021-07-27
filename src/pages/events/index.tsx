@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { getEvents } from "infrastructure/services/marvel";
 import useIntersectionObserver from "application/hooks/useIntersectionObserver";
+import useScreenOrientation from "application/hooks/useScreenOrientation";
 import Event from "domain/entities/event";
 
 import CardContainer, { Card } from "ui/components/Card";
@@ -14,7 +15,6 @@ import { Container } from "ui/components/Container";
 import { SectionTitle } from "ui/components/SectionTitle";
 import Footer from "ui/components/Footer";
 import { Loading } from "ui/components/Loading";
-import useScreenOrientation from "../../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
   events: Event[];
@@ -70,51 +70,61 @@ export default function Comics({
         <Container>
           <SectionTitle>Eventos</SectionTitle>
           <div>
-            {events?.map((events) => (
+            {events?.map((event) => (
               <CardContainer
-                key={events.id}
-                onClick={handleNavigate(``)}
-                alt={`Ir para detalhes de ${events.title}`}
-                title={`Ir para detalhes de ${events.title}`}
+                key={event.id}
+                onClick={handleNavigate(
+                  `/events/${event.title.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                    event.id
+                  }`
+                )}
+                alt={`Ir para detalhes de ${event.title}`}
+                title={`Ir para detalhes de ${event.title}`}
               >
                 <>
                   <figure>
                     <Card.Image
-                      src={`${events.thumbnail.path}/${orientation}_fantastic.${events.thumbnail.extension}`}
-                      alt={events.title}
+                      src={`${event.thumbnail.path}/${orientation}_fantastic.${event.thumbnail.extension}`}
+                      alt={event.title}
                       layout="fill"
                       objectFit="fill"
                     />
                   </figure>
                   <Card.Header>
-                    <Card.Title>{events.title}</Card.Title>
-                    {events.description && (
+                    <Card.Title>{event.title}</Card.Title>
+                    {event.description && (
                       <Card.Description>
-                        {events.description?.slice(0, 64)}
+                        {event.description?.slice(0, 64)}
                         <>
                           ...<div>Ver mais</div>
                         </>
                       </Card.Description>
                     )}
-                    {events.comics.available > 0 && (
+                    {event.comics.available > 0 && (
                       <Link
                         passHref
                         href="/events/:title/:id/comics"
-                        as={`/events/${events.title}/${events.id}/comics`}
+                        as={`/events/${event.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${event.id}/comics`}
                       >
                         <Card.Link>
-                          Quadrinhos: <var>{events.comics.available}</var>
+                          Quadrinhos: <var>{event.comics.available}</var>
                         </Card.Link>
                       </Link>
                     )}
-                    {events.characters.available > 0 && (
+                    {event.characters.available > 0 && (
                       <Link
                         passHref
                         href="/events/:title/:id/characters"
-                        as={`/events/${events.title}/${events.id}/characters`}
+                        as={`/events/${event.title.replace(
+                          /[^-a-zA-Z0-9]+/g,
+                          ""
+                        )}/${event.id}/characters`}
                       >
                         <Card.Link>
-                          Personagens: <var>{events.characters.available}</var>
+                          Personagens: <var>{event.characters.available}</var>
                         </Card.Link>
                       </Link>
                     )}
