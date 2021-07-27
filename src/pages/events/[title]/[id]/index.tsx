@@ -96,7 +96,7 @@ const EventPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 </SimpleCard.Container>
               ))}
               {props.event.characters.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/events/:name/:id/characters"
@@ -143,7 +143,7 @@ const EventPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 </SimpleCard.Container>
               ))}
               {props.event.comics.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/events/:name/:id/comics"

@@ -107,7 +107,7 @@ const CharacterPage = (
                 </SimpleCard.Container>
               ))}
               {props.character.comics.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/characters/:name/:id/comics"
@@ -154,7 +154,7 @@ const CharacterPage = (
                 </SimpleCard.Container>
               ))}
               {props.character.comics.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/characters/:name/:id/events"

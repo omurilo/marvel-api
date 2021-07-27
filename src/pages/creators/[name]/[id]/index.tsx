@@ -96,7 +96,7 @@ const CreatorPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 </SimpleCard.Container>
               ))}
               {props.creator.comics.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/creators/:name/:id/comics"
@@ -143,7 +143,7 @@ const CreatorPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                 </SimpleCard.Container>
               ))}
               {props.creator.events.available > 5 ? (
-                <SimpleCard.Container>
+                <SimpleCard.Container $fit>
                   <Link
                     passHref
                     href="/creators/:name/:id/events"
