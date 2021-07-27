@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Creator from "domain/entities/creator";
 import { getCreators } from "infrastructure/services/marvel";
 import useIntersectionObserver from "application/hooks/useIntersectionObserver";
+import useScreenOrientation from "application/hooks/useScreenOrientation";
 
 import CardContainer, { Card } from "ui/components/Card";
 import Header from "ui/components/Header";
@@ -13,7 +14,6 @@ import { Container } from "ui/components/Container";
 import { SectionTitle } from "ui/components/SectionTitle";
 import Footer from "ui/components/Footer";
 import { Loading } from "ui/components/Loading";
-import useScreenOrientation from "../../application/hooks/useScreenOrientation";
 
 type HomePageProps = {
   creators: Creator[];
@@ -76,9 +76,10 @@ export default function Creators({
               <CardContainer
                 key={creator.id}
                 onClick={handleNavigate(
-                  `/creators/${creator.firstName.replace(/\W*/, "")}/${
-                    creator.id
-                  }`
+                  `/creators/${creator.firstName.replace(
+                    /[^-a-zA-Z0-9]+/g,
+                    ""
+                  )}/${creator.id}`
                 )}
                 alt={`Ir para detalhes de ${creator.fullName}`}
                 title={`Ir para detalhes de ${creator.fullName}`}
@@ -108,7 +109,7 @@ export default function Creators({
                         href="/creators/:name/:id/events"
                         as={`/creators/${(
                           creator.firstName || creator.fullName
-                        ).replace(/\W*/, "")}/${creator.id}/events`}
+                        ).replace(/[^-a-zA-Z0-9]+/g, "")}/${creator.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{creator.events.available}</var>
@@ -121,7 +122,7 @@ export default function Creators({
                         href="/creators/:name/:id/comics/"
                         as={`/creators/${(
                           creator.firstName || creator.fullName
-                        ).replace(/\W*/, "")}/${creator.id}/comics`}
+                        ).replace(/[^-a-zA-Z0-9]+/g, "")}/${creator.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{creator.comics.available}</var>

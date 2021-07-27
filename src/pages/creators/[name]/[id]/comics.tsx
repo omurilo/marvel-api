@@ -1,30 +1,45 @@
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import * as React from "react";
-
-import { getCreatorComics, getCreators } from "infrastructure/services/marvel";
 import Link from "next/link";
 import Image from "next/image";
 import Head from "next/head";
 
+import {
+  getCreatorComics,
+  getCreatorDetail,
+  getCreators,
+} from "infrastructure/services/marvel";
+import useScreenOrientation from "application/hooks/useScreenOrientation";
+
+import Header from "ui/components/Header";
+import { Container } from "ui/components/Container";
+import Banner from "ui/components/Banner";
+import ComicCard from "ui/components/ComicCard";
+import SimpleCard from "ui/components/SimpleCard";
+import { Card } from "ui/components/Card";
+import Footer from "ui/components/Footer";
+
 const CharacterComicsPage = ({
-  name,
+  creator,
   comics,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
+  const orientation = useScreenOrientation();
+
   return (
     <div>
       <Head>
-        <title>Quadrinhos que o criador {name} participou</title>
+        <title>Quadrinhos que o criador {creator.name} participou</title>
         <meta
           name="description"
-          content={`Lista dos quadrinhos que o criador ${name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
         />
         <meta
           name="og:title"
-          content={`Quadrinhos que o criador ${name} participou`}
+          content={`Quadrinhos que o criador ${creator.name} participou`}
         />
         <meta
           name="og:description"
-          content={`Lista dos quadrinhos que o criador ${name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
         />
         <meta name="og:type" content="article" />
         <meta name="og:site_name" content="Marvel Comics" />
@@ -32,70 +47,71 @@ const CharacterComicsPage = ({
         <meta name="twitter:site" content="@marvel" />
         <meta
           name="twitter:title"
-          content={`Quadrinhos que o criador ${name} participou`}
+          content={`Quadrinhos que o criador ${creator.name} participou`}
         />
         <meta
           name="twitter:description"
-          content={`Lista dos quadrinhos que o criador ${name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
         />
       </Head>
       <main>
-        <h1>
-          Quadrinhos do criador: <em>{name}</em>
-        </h1>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: 10,
-          }}
-        >
-          {comics?.map((comic) => (
-            <div
-              key={comic.id}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                alignItems: "stretch",
-                flexBasis: "calc(50% - 10px)",
-              }}
-            >
+        <Header />
+        <Container $bgColor="black">
+          <Banner.Container>
+            <figure>
               <Image
-                src={`${comic.thumbnail.path}/portrait_incredible.${comic.thumbnail.extension}`}
+                src={`${creator.thumbnail.path}/portrait_uncanny.${creator.thumbnail.extension}`}
+                alt={creator.name}
+                layout="fill"
+                objectFit="fill"
+              />
+            </figure>
+            <Banner.Info>
+              <Banner.Title>{creator.name}</Banner.Title>
+              {creator.description && (
+                <Banner.Description
+                  dangerouslySetInnerHTML={{
+                    __html: creator.description,
+                  }}
+                />
+              )}
+            </Banner.Info>
+          </Banner.Container>
+        </Container>
+        <Container $row $center>
+          {comics?.map((comic) => (
+            <ComicCard.Container key={comic.id}>
+              <ComicCard.Image
+                src={`${comic.thumbnail.path}/${orientation}_incredible.${comic.thumbnail.extension}`}
                 alt={comic.title}
-                // layout="responsive"
                 objectFit="cover"
+                objectPosition="top"
                 width={216}
                 height={324}
               />
-              <div style={{ marginLeft: 10 }}>
-                <h2>{comic.title}</h2>
-                <p>
-                  Descrição:{" "}
-                  <p dangerouslySetInnerHTML={{ __html: comic.description }} />
-                </p>
-                <p>
-                  Preço:{" "}
-                  {comic.prices.map((price) => (
-                    <p key={price.type}>
-                      {price.type === "printPrice" ? "Impressa" : "Digital"}: $
-                      {price.price}
-                    </p>
-                  ))}
-                </p>
+              <ComicCard.Info>
+                <SimpleCard.Title as="h2">{comic.title}</SimpleCard.Title>
+                <ComicCard.Text
+                  dangerouslySetInnerHTML={{
+                    __html: comic.description?.length > 350 ? comic.description?.slice(0, 350).padEnd(353, "...") : comic.description,
+                  }}
+                />
                 <Link
                   passHref
                   href={`/comics/:title/:id`}
-                  as={`/comics/${comic.title}/${comic.id}`}
+                  as={`/comics/${comic.title.replace(/[^-a-zA-Z0-9z]+/g, "")}/${
+                    comic.id
+                  }`}
                 >
-                  <a>Ver mais</a>
+                  <Card.Link>
+                    <ComicCard.Text>Ver mais</ComicCard.Text>
+                  </Card.Link>
                 </Link>
-              </div>
-            </div>
+              </ComicCard.Info>
+            </ComicCard.Container>
           ))}
-        </div>
+        </Container>
+        <Footer />
       </main>
     </div>
   );
@@ -107,7 +123,7 @@ export const getStaticPaths = async () => {
   const paths = response.results.map((creator) => ({
     params: {
       id: String(creator.id),
-      name: creator.firstName || creator.fullName,
+      name: creator.fullName.replace(/[^a-zA-Z0-9]+/g, ""),
     },
   }));
 
@@ -120,14 +136,24 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const { params } = context;
 
-  const { id, name } = params as { id: string; name: string };
+  const { id } = params as { id: string; name: string };
 
-  const response = await getCreatorComics({ id });
+  const { results: comics } = await getCreatorComics({ id, limit: 5 });
+
+  const {
+    results: [{ fullName, description, thumbnail }],
+  } = await getCreatorDetail({ id });
+
+  const creator = {
+    name: fullName,
+    description: description || null,
+    thumbnail,
+  };
 
   return {
     props: {
-      name,
-      comics: response.results,
+      creator,
+      comics,
     },
     revalidate: 24 * 60 * 60,
   };
