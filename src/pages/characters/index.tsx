@@ -37,7 +37,7 @@ export default function Characters({
   const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
 
   const handleNavigate = (character: Character) => () => {
-    router.push(`/characters/${character.name}/${character.id}`);
+    router.push(`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}`);
   };
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function Characters({
                       <Link
                         passHref
                         href="/characters/:name/:id/events"
-                        as={`/characters/${character.name}/${character.id}/events`}
+                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{character.events.available}</var>
@@ -113,7 +113,7 @@ export default function Characters({
                       <Link
                         passHref
                         href="/characters/:name/:id/comics/"
-                        as={`/characters/${character.name}/${character.id}/comics`}
+                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{character.comics.available}</var>

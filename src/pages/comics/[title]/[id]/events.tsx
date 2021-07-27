@@ -127,7 +127,7 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const { params } = context;
 
-  const { id } = params as { id: string; title: string };
+  const { id } = params as { id: string };
 
   const response = await getComicEvents({ id });
 

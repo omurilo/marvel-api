@@ -50,7 +50,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
               <CardContainer
                 key={character.id}
                 onClick={handleNavigate(
-                  `/characters/${character.name}/${character.id}`
+                  `/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}`
                 )}
                 alt={`Ir para detalhes de ${character.name}`}
                 title={`Ir para detalhes de ${character.name}`}
@@ -78,7 +78,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/characters/:name/:id/events"
-                        as={`/characters/${character.name}/${character.id}/events`}
+                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{character.events.available}</var>
@@ -89,7 +89,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/characters/:name/:id/comics/"
-                        as={`/characters/${character.name}/${character.id}/comics`}
+                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{character.comics.available}</var>
@@ -167,7 +167,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
             {events?.map((event) => (
               <CardContainer
                 key={event.id}
-                onClick={handleNavigate(`/events/${event.title}/${event.id}`)}
+                onClick={handleNavigate(`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}`)}
                 alt={`Ir para detalhes de ${event.title}`}
                 title={`Ir para detalhes de ${event.title}`}
               >
@@ -186,7 +186,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/events/:title/:id/characters"
-                        as={`/events/${event.title}/${event.id}/characters`}
+                        as={`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}/characters`}
                       >
                         <Card.Link>
                           Personagens: <var>{event.characters.available}</var>
@@ -197,7 +197,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/events/:title/:id/events"
-                        as={`/events/${event.title}/${event.id}/events`}
+                        as={`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}/events`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{event.comics.available}</var>
