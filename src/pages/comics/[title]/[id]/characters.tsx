@@ -8,7 +8,9 @@ import {
   getComicCharacters,
   getComics,
   getComicDetail,
+  getCharacters,
 } from "infrastructure/services/marvel";
+import useIntersectionObserver from "application/hooks/useIntersectionObserver";
 
 import Header from "ui/components/Header";
 import { Container } from "ui/components/Container";
@@ -17,26 +19,50 @@ import { SectionTitle } from "ui/components/SectionTitle";
 import SimpleCard from "ui/components/SimpleCard";
 import { Card } from "ui/components/Card";
 import Footer from "ui/components/Footer";
+import { Loading } from "ui/components/Loading";
 
-const CharacterComicsPage = ({
-  comic,
-  characters,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const CharacterComicsPage = (
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) => {
+  const [offset, setOffset] = React.useState(Number(props.offset));
+  const [characters, setCharacters] = React.useState(props.characters);
+
+  const observerRef = React.useRef(null);
+  const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
+
+  React.useEffect(() => {
+    if (observer?.isIntersecting) {
+      if (observer.intersectionRatio >= 0.33) {
+        setOffset((past) => past + Number(props.limit));
+      }
+    }
+  }, [observer, props.limit]);
+
+  React.useEffect(() => {
+    if (offset > props.offset) {
+      if (offset < Number(props.total)) {
+        getCharacters({ offset, limit: props.limit }).then((response) =>
+          setCharacters((past) => [...past, ...response.results])
+        );
+      }
+    }
+  }, [offset, props.limit, props.total, props.offset]);
+
   return (
     <div>
       <Head>
-        <title>Personagens que aparecem no quadrinho {comic.title}</title>
+        <title>Personagens que aparecem no quadrinho {props.comic.title}</title>
         <meta
           name="description"
-          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${props.comic.title}.`}
         />
         <meta
           name="og:title"
-          content={`Personagens que aparecem no quadrinho ${comic.title}`}
+          content={`Personagens que aparecem no quadrinho ${props.comic.title}`}
         />
         <meta
           name="og:description"
-          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${props.comic.title}.`}
         />
         <meta name="og:type" content="article" />
         <meta name="og:site_name" content="Marvel Comics" />
@@ -44,11 +70,11 @@ const CharacterComicsPage = ({
         <meta name="twitter:site" content="@marvel" />
         <meta
           name="twitter:title"
-          content={`Personagens que aparecem no quadrinho ${comic.title}`}
+          content={`Personagens que aparecem no quadrinho ${props.comic.title}`}
         />
         <meta
           name="twitter:description"
-          content={`Lista dos personagens que aparecem no quadrinho ${comic.title}.`}
+          content={`Lista dos personagens que aparecem no quadrinho ${props.comic.title}.`}
         />
       </Head>
       <main>
@@ -57,18 +83,18 @@ const CharacterComicsPage = ({
           <Banner.Container>
             <figure>
               <Image
-                src={`${comic.thumbnail.path}/portrait_uncanny.${comic.thumbnail.extension}`}
-                alt={comic.title}
+                src={`${props.comic.thumbnail.path}/portrait_uncanny.${props.comic.thumbnail.extension}`}
+                alt={props.comic.title}
                 layout="fill"
                 objectFit="fill"
               />
             </figure>
             <Banner.Info>
-              <Banner.Title>{comic.title}</Banner.Title>
-              {comic.description && (
+              <Banner.Title>{props.comic.title}</Banner.Title>
+              {props.comic.description && (
                 <Banner.Description
                   dangerouslySetInnerHTML={{
-                    __html: comic.description,
+                    __html: props.comic.description,
                   }}
                 />
               )}
@@ -103,6 +129,9 @@ const CharacterComicsPage = ({
               </SimpleCard.Container>
             ))}
           </div>
+          <div style={{ width: "100%", marginTop: "2rem" }} ref={observerRef}>
+            {offset <= props.total && observer?.isIntersecting && <Loading />}
+          </div>
         </Container>
         <Footer />
       </main>
@@ -113,10 +142,10 @@ const CharacterComicsPage = ({
 export const getStaticPaths = async () => {
   const response = await getComics({ limit: 14 });
 
-  const paths = response.results.map((character) => ({
+  const paths = response.results.map((comic) => ({
     params: {
-      id: String(character.id),
-      title: character.title.replace(/[^a-zA-Z0-9]+/g, ""),
+      id: String(comic.id),
+      title: comic.title.replace(/[^a-zA-Z0-9]+/g, ""),
     },
   }));
 
@@ -131,7 +160,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   const { id } = params as { id: string };
 
-  const response = await getComicCharacters({ id });
+  const response = await getComicCharacters({ id, limit: 14 });
 
   const {
     results: [{ title, description, thumbnail }],
@@ -147,6 +176,9 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     props: {
       comic,
       characters: response.results,
+      limit: response.limit,
+      offset: response.offset,
+      total: response.total,
     },
     revalidate: 24 * 60 * 60,
   };

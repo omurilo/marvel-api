@@ -5,21 +5,49 @@ import {
   getCreatorDetail,
   getCreatorEvents,
   getCreators,
+  getEvents,
 } from "infrastructure/services/marvel";
 import Head from "next/head";
-import Header from "../../../../ui/components/Header";
-import { Container } from "../../../../ui/components/Container";
-import Banner from "../../../../ui/components/Banner";
+import Header from "ui/components/Header";
+import { Container } from "ui/components/Container";
+import Banner from "ui/components/Banner";
 import Image from "next/image";
-import { SectionTitle } from "../../../../ui/components/SectionTitle";
-import SimpleCard from "../../../../ui/components/SimpleCard";
+import { SectionTitle } from "ui/components/SectionTitle";
+import SimpleCard from "ui/components/SimpleCard";
 import Link from "next/link";
-import { Card } from "../../../../ui/components/Card";
-import Footer from "../../../../ui/components/Footer";
+import { Card } from "ui/components/Card";
+import Footer from "ui/components/Footer";
+import { Loading } from "ui/components/Loading";
+import useIntersectionObserver from "application/hooks/useIntersectionObserver";
 
 const CharacterEventsPage = (
   props: InferGetStaticPropsType<typeof getStaticProps>
 ) => {
+  const [offset, setOffset] = React.useState(Number(props.offset));
+  const [events, setEvents] = React.useState(props.events);
+
+  const observerRef = React.useRef(null);
+
+  const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
+
+  React.useEffect(() => {
+    if (observer?.isIntersecting) {
+      if (observer.intersectionRatio >= 0.33) {
+        setOffset((past) => past + Number(props.limit));
+      }
+    }
+  }, [observer, props.limit]);
+
+  React.useEffect(() => {
+    if (offset > props.offset) {
+      if (offset < Number(props.total)) {
+        getEvents({ offset, limit: props.limit }).then((response) =>
+          setEvents((past) => [...past, ...response.results])
+        );
+      }
+    }
+  }, [offset, props.limit, props.total, props.offset]);
+
   return (
     <div>
       <Head>
@@ -76,7 +104,7 @@ const CharacterEventsPage = (
         <Container>
           <SectionTitle>Eventos</SectionTitle>
           <div>
-            {props.events.map((event) => (
+            {events.map((event) => (
               <SimpleCard.Container key={event.id}>
                 <Link
                   passHref
@@ -99,6 +127,9 @@ const CharacterEventsPage = (
                 </Link>
               </SimpleCard.Container>
             ))}
+          </div>
+          <div style={{ width: "100%", marginTop: "2rem" }} ref={observerRef}>
+            {offset <= props.total && observer?.isIntersecting && <Loading />}
           </div>
         </Container>
         <Footer />
@@ -127,8 +158,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   const { params } = context;
 
   const { id } = params as { id: string };
-
-  const response = await getCreatorEvents({ id });
+  const response = await getCreatorEvents({ id, limit: 14 });
 
   const {
     results: [{ fullName: name, description, thumbnail }],
@@ -144,6 +174,9 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     props: {
       creator,
       events: response.results,
+      limit: response.limit,
+      offset: response.offset,
+      total: response.total,
     },
     revalidate: 24 * 60 * 60,
   };

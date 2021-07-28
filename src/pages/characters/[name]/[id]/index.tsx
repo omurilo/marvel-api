@@ -18,7 +18,6 @@ import { Card } from "ui/components/Card";
 import SimpleCard from "ui/components/SimpleCard";
 import Banner from "ui/components/Banner";
 import Footer from "ui/components/Footer";
-import character from "../../../../__mocks__/marvel/character";
 
 const CharacterPage = (
   props: InferGetStaticPropsType<typeof getStaticProps>
@@ -111,10 +110,10 @@ const CharacterPage = (
                   <Link
                     passHref
                     href="/characters/:name/:id/comics"
-                    as={`/characters/${character.name.replace(
+                    as={`/characters/${props.character.name.replace(
                       /[^a-zA-Z0-9]+/g,
                       ""
-                    )}/${character.id}/comics`}
+                    )}/${props.character.id}/comics`}
                   >
                     <Banner.Link>
                       <span>Ver todos</span>
@@ -158,10 +157,10 @@ const CharacterPage = (
                   <Link
                     passHref
                     href="/characters/:name/:id/events"
-                    as={`/characters/${character.name.replace(
+                    as={`/characters/${props.character.name.replace(
                       /[^a-zA-Z0-9]+/g,
                       ""
-                    )}/${character.id}/events`}
+                    )}/${props.character.id}/events`}
                   >
                     <Banner.Link>
                       <span>Ver todos</span>

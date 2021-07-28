@@ -6,6 +6,7 @@ import Head from "next/head";
 import useScreenOrientation from "application/hooks/useScreenOrientation";
 
 import {
+  getComics,
   getEventComics,
   getEventDetail,
   getEvents,
@@ -18,28 +19,54 @@ import Header from "ui/components/Header";
 import { Container } from "ui/components/Container";
 import Banner from "ui/components/Banner";
 import SimpleCard from "ui/components/SimpleCard";
+import useIntersectionObserver from "application/hooks/useIntersectionObserver";
+import { Loading } from "ui/components/Loading";
+import { SectionTitle } from "ui/components/SectionTitle";
 
-const EventComicsPage = ({
-  event,
-  comics,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const EventComicsPage = (
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) => {
+  const [offset, setOffset] = React.useState(Number(props.offset));
+  const [comics, setComics] = React.useState(props.comics);
+
+  const observerRef = React.useRef(null);
   const orientation = useScreenOrientation();
+
+  const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
+
+  React.useEffect(() => {
+    if (observer?.isIntersecting) {
+      if (observer.intersectionRatio >= 0.33) {
+        setOffset((past) => past + Number(props.limit));
+      }
+    }
+  }, [observer, props.limit]);
+
+  React.useEffect(() => {
+    if (offset > props.offset) {
+      if (offset < Number(props.total)) {
+        getComics({ offset, limit: props.limit }).then((response) =>
+          setComics((past) => [...past, ...response.results])
+        );
+      }
+    }
+  }, [offset, props.limit, props.total, props.offset]);
 
   return (
     <div>
       <Head>
-        <title>Quadrinhos que o evento {event.title} acontece</title>
+        <title>Quadrinhos que o evento {props.event.title} acontece</title>
         <meta
           name="description"
-          content={`Lista dos quadrinhos onde o evento ${event.title} acontece.`}
+          content={`Lista dos quadrinhos onde o evento ${props.event.title} acontece.`}
         />
         <meta
           name="og:title"
-          content={`Quadrinhos que o evento ${event.title} acontece`}
+          content={`Quadrinhos que o evento ${props.event.title} acontece`}
         />
         <meta
           name="og:description"
-          content={`Lista dos quadrinhos onde o evento ${event.title} acontece.`}
+          content={`Lista dos quadrinhos onde o evento ${props.event.title} acontece.`}
         />
         <meta name="og:type" content="article" />
         <meta name="og:site_name" content="Marvel Comics" />
@@ -47,11 +74,11 @@ const EventComicsPage = ({
         <meta name="twitter:site" content="@marvel" />
         <meta
           name="twitter:title"
-          content={`Quadrinhos que o evento ${event.title} acontece`}
+          content={`Quadrinhos que o evento ${props.event.title} acontece`}
         />
         <meta
           name="twitter:description"
-          content={`Lista dos quadrinhos onde o evento ${event.title} acontece.`}
+          content={`Lista dos quadrinhos onde o evento ${props.event.title} acontece.`}
         />
       </Head>
       <main>
@@ -60,56 +87,66 @@ const EventComicsPage = ({
           <Banner.Container>
             <figure>
               <Image
-                src={`${event.thumbnail.path}/portrait_uncanny.${event.thumbnail.extension}`}
-                alt={event.title}
+                src={`${props.event.thumbnail.path}/portrait_uncanny.${props.event.thumbnail.extension}`}
+                alt={props.event.title}
                 layout="fill"
                 objectFit="fill"
               />
             </figure>
             <Banner.Info>
-              <Banner.Title>{event.title}</Banner.Title>
-              {event.description && (
+              <Banner.Title>{props.event.title}</Banner.Title>
+              {props.event.description && (
                 <Banner.Description
                   dangerouslySetInnerHTML={{
-                    __html: event.description,
+                    __html: props.event.description,
                   }}
                 />
               )}
             </Banner.Info>
           </Banner.Container>
         </Container>
-        <Container $row $center>
-          {comics?.map((comic) => (
-            <ComicCard.Container key={comic.id}>
-              <ComicCard.Image
-                src={`${comic.thumbnail.path}/${orientation}_incredible.${comic.thumbnail.extension}`}
-                alt={comic.title}
-                objectFit="cover"
-                objectPosition="top"
-                width={216}
-                height={324}
-              />
-              <ComicCard.Info>
-                <SimpleCard.Title as="h2">{comic.title}</SimpleCard.Title>
-                <ComicCard.Text
-                  dangerouslySetInnerHTML={{
-                    __html: comic.description?.length > 350 ? comic.description?.slice(0, 350).padEnd(353, "...") : comic.description,
-                  }}
+        <Container>
+          <SectionTitle>Quadrinhos</SectionTitle>
+          <div>
+            {comics?.map((comic) => (
+              <ComicCard.Container key={comic.id}>
+                <ComicCard.Image
+                  src={`${comic.thumbnail.path}/${orientation}_incredible.${comic.thumbnail.extension}`}
+                  alt={comic.title}
+                  objectFit="cover"
+                  objectPosition="top"
+                  width={216}
+                  height={324}
                 />
-                <Link
-                  passHref
-                  href={`/comics/:title/:id`}
-                  as={`/comics/${comic.title.replace(/[^-a-zA-Z0-9z]+/g, "")}/${
-                    comic.id
-                  }`}
-                >
-                  <Card.Link>
-                    <ComicCard.Text>Ver mais</ComicCard.Text>
-                  </Card.Link>
-                </Link>
-              </ComicCard.Info>
-            </ComicCard.Container>
-          ))}
+                <ComicCard.Info>
+                  <SimpleCard.Title as="h2">{comic.title}</SimpleCard.Title>
+                  <ComicCard.Text
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        comic.description?.length > 350
+                          ? comic.description?.slice(0, 350).padEnd(353, "...")
+                          : comic.description,
+                    }}
+                  />
+                  <Link
+                    passHref
+                    href={`/comics/:title/:id`}
+                    as={`/comics/${comic.title.replace(
+                      /[^-a-zA-Z0-9z]+/g,
+                      ""
+                    )}/${comic.id}`}
+                  >
+                    <Card.Link>
+                      <ComicCard.Text>Ver mais</ComicCard.Text>
+                    </Card.Link>
+                  </Link>
+                </ComicCard.Info>
+              </ComicCard.Container>
+            ))}
+          </div>
+          <div style={{ width: "100%", marginTop: "2rem" }} ref={observerRef}>
+            {offset <= props.total && observer?.isIntersecting && <Loading />}
+          </div>
         </Container>
         <Footer />
       </main>
@@ -138,7 +175,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   const { id } = params as { id: string; title: string };
 
-  const { results: comics } = await getEventComics({ id, limit: 5 });
+  const response = await getEventComics({ id, limit: 14 });
 
   const {
     results: [{ title, description, thumbnail }],
@@ -150,10 +187,15 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     thumbnail,
   };
 
+  console.log({ LIMIT: response.limit });
+
   return {
     props: {
       event,
-      comics,
+      comics: response.results,
+      offset: response.offset,
+      limit: response.limit,
+      total: response.total,
     },
     revalidate: 24 * 60 * 60,
   };

@@ -5,11 +5,13 @@ import Image from "next/image";
 import Head from "next/head";
 
 import {
+  getComics,
   getCreatorComics,
   getCreatorDetail,
   getCreators,
 } from "infrastructure/services/marvel";
 import useScreenOrientation from "application/hooks/useScreenOrientation";
+import useIntersectionObserver from "application/hooks/useIntersectionObserver";
 
 import Header from "ui/components/Header";
 import { Container } from "ui/components/Container";
@@ -18,28 +20,53 @@ import ComicCard from "ui/components/ComicCard";
 import SimpleCard from "ui/components/SimpleCard";
 import { Card } from "ui/components/Card";
 import Footer from "ui/components/Footer";
+import { SectionTitle } from "ui/components/SectionTitle";
+import { Loading } from "ui/components/Loading";
 
-const CharacterComicsPage = ({
-  creator,
-  comics,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const CharacterComicsPage = (
+  props: InferGetStaticPropsType<typeof getStaticProps>
+) => {
+  const [offset, setOffset] = React.useState(Number(props.offset));
+  const [comics, setComics] = React.useState(props.comics);
+
+  const observerRef = React.useRef(null);
   const orientation = useScreenOrientation();
+
+  const observer = useIntersectionObserver(observerRef, { threshold: 0.33 });
+
+  React.useEffect(() => {
+    if (observer?.isIntersecting) {
+      if (observer.intersectionRatio >= 0.33) {
+        setOffset((past) => past + Number(props.limit));
+      }
+    }
+  }, [observer, props.limit]);
+
+  React.useEffect(() => {
+    if (offset > props.offset) {
+      if (offset < Number(props.total)) {
+        getComics({ offset, limit: props.limit }).then((response) =>
+          setComics((past) => [...past, ...response.results])
+        );
+      }
+    }
+  }, [offset, props.limit, props.total, props.offset]);
 
   return (
     <div>
       <Head>
-        <title>Quadrinhos que o criador {creator.name} participou</title>
+        <title>Quadrinhos que o criador {props.creator.name} participou</title>
         <meta
           name="description"
-          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${props.creator.name} participou.`}
         />
         <meta
           name="og:title"
-          content={`Quadrinhos que o criador ${creator.name} participou`}
+          content={`Quadrinhos que o criador ${props.creator.name} participou`}
         />
         <meta
           name="og:description"
-          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${props.creator.name} participou.`}
         />
         <meta name="og:type" content="article" />
         <meta name="og:site_name" content="Marvel Comics" />
@@ -47,11 +74,11 @@ const CharacterComicsPage = ({
         <meta name="twitter:site" content="@marvel" />
         <meta
           name="twitter:title"
-          content={`Quadrinhos que o criador ${creator.name} participou`}
+          content={`Quadrinhos que o criador ${props.creator.name} participou`}
         />
         <meta
           name="twitter:description"
-          content={`Lista dos quadrinhos que o criador ${creator.name} participou.`}
+          content={`Lista dos quadrinhos que o criador ${props.creator.name} participou.`}
         />
       </Head>
       <main>
@@ -60,56 +87,66 @@ const CharacterComicsPage = ({
           <Banner.Container>
             <figure>
               <Image
-                src={`${creator.thumbnail.path}/portrait_uncanny.${creator.thumbnail.extension}`}
-                alt={creator.name}
+                src={`${props.creator.thumbnail.path}/portrait_uncanny.${props.creator.thumbnail.extension}`}
+                alt={props.creator.name}
                 layout="fill"
                 objectFit="fill"
               />
             </figure>
             <Banner.Info>
-              <Banner.Title>{creator.name}</Banner.Title>
-              {creator.description && (
+              <Banner.Title>{props.creator.name}</Banner.Title>
+              {props.creator.description && (
                 <Banner.Description
                   dangerouslySetInnerHTML={{
-                    __html: creator.description,
+                    __html: props.creator.description,
                   }}
                 />
               )}
             </Banner.Info>
           </Banner.Container>
         </Container>
-        <Container $row $center>
-          {comics?.map((comic) => (
-            <ComicCard.Container key={comic.id}>
-              <ComicCard.Image
-                src={`${comic.thumbnail.path}/${orientation}_incredible.${comic.thumbnail.extension}`}
-                alt={comic.title}
-                objectFit="cover"
-                objectPosition="top"
-                width={216}
-                height={324}
-              />
-              <ComicCard.Info>
-                <SimpleCard.Title as="h2">{comic.title}</SimpleCard.Title>
-                <ComicCard.Text
-                  dangerouslySetInnerHTML={{
-                    __html: comic.description?.length > 350 ? comic.description?.slice(0, 350).padEnd(353, "...") : comic.description,
-                  }}
+        <Container>
+          <SectionTitle>Quadrinhos</SectionTitle>
+          <div>
+            {comics?.map((comic) => (
+              <ComicCard.Container key={comic.id}>
+                <ComicCard.Image
+                  src={`${comic.thumbnail.path}/${orientation}_incredible.${comic.thumbnail.extension}`}
+                  alt={comic.title}
+                  objectFit="cover"
+                  objectPosition="top"
+                  width={216}
+                  height={324}
                 />
-                <Link
-                  passHref
-                  href={`/comics/:title/:id`}
-                  as={`/comics/${comic.title.replace(/[^-a-zA-Z0-9z]+/g, "")}/${
-                    comic.id
-                  }`}
-                >
-                  <Card.Link>
-                    <ComicCard.Text>Ver mais</ComicCard.Text>
-                  </Card.Link>
-                </Link>
-              </ComicCard.Info>
-            </ComicCard.Container>
-          ))}
+                <ComicCard.Info>
+                  <SimpleCard.Title as="h2">{comic.title}</SimpleCard.Title>
+                  <ComicCard.Text
+                    dangerouslySetInnerHTML={{
+                      __html:
+                        comic.description?.length > 350
+                          ? comic.description?.slice(0, 350).padEnd(353, "...")
+                          : comic.description,
+                    }}
+                  />
+                  <Link
+                    passHref
+                    href={`/comics/:title/:id`}
+                    as={`/comics/${comic.title.replace(
+                      /[^-a-zA-Z0-9z]+/g,
+                      ""
+                    )}/${comic.id}`}
+                  >
+                    <Card.Link>
+                      <ComicCard.Text>Ver mais</ComicCard.Text>
+                    </Card.Link>
+                  </Link>
+                </ComicCard.Info>
+              </ComicCard.Container>
+            ))}
+          </div>
+          <div style={{ width: "100%", marginTop: "2rem" }} ref={observerRef}>
+            {offset <= props.total && observer?.isIntersecting && <Loading />}
+          </div>
         </Container>
         <Footer />
       </main>
@@ -138,7 +175,7 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
 
   const { id } = params as { id: string; name: string };
 
-  const { results: comics } = await getCreatorComics({ id, limit: 5 });
+  const response = await getCreatorComics({ id, limit: 14 });
 
   const {
     results: [{ fullName, description, thumbnail }],
@@ -153,7 +190,10 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
   return {
     props: {
       creator,
-      comics,
+      comics: response.results,
+      limit: response.limit,
+      total: response.total,
+      offset: response.offset,
     },
     revalidate: 24 * 60 * 60,
   };
