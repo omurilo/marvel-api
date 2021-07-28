@@ -187,8 +187,6 @@ export const getStaticProps = async (context: GetStaticPropsContext) => {
     thumbnail,
   };
 
-  console.log({ LIMIT: response.limit });
-
   return {
     props: {
       event,
