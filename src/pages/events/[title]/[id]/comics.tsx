@@ -132,7 +132,7 @@ const EventComicsPage = (
                     passHref
                     href={`/comics/:title/:id`}
                     as={`/comics/${comic.title.replace(
-                      /[^-a-zA-Z0-9z]+/g,
+                      /[a-zA-Z0-9]+/g,
                       ""
                     )}/${comic.id}`}
                   >

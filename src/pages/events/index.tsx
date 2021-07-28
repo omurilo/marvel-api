@@ -74,7 +74,7 @@ export default function Comics({
               <CardContainer
                 key={event.id}
                 onClick={handleNavigate(
-                  `/events/${event.title.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                  `/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${
                     event.id
                   }`
                 )}
@@ -105,7 +105,7 @@ export default function Comics({
                         passHref
                         href="/events/:title/:id/comics"
                         as={`/events/${event.title.replace(
-                          /[^-a-zA-Z0-9]+/g,
+                          /[^a-zA-Z0-9]+/g,
                           ""
                         )}/${event.id}/comics`}
                       >
@@ -119,7 +119,7 @@ export default function Comics({
                         passHref
                         href="/events/:title/:id/characters"
                         as={`/events/${event.title.replace(
-                          /[^-a-zA-Z0-9]+/g,
+                          /[^a-zA-Z0-9]+/g,
                           ""
                         )}/${event.id}/characters`}
                       >

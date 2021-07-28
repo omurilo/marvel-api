@@ -110,7 +110,7 @@ const CharacterComicsPage = (
                   passHref
                   href="/characters/:title/:id"
                   as={`/characters/${character.name?.replace(
-                    /[^-a-zA-Z0-9]+/g,
+                    /[^a-zA-Z0-9]+/g,
                     ""
                   )}/${character.id}`}
                 >

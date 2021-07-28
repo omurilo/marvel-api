@@ -110,7 +110,7 @@ const CharacterEventsPage = (
                 <Link
                   passHref
                   href="/events/:title/:id"
-                  as={`/events/${event.title?.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                  as={`/events/${event.title?.replace(/[^a-zA-Z0-9]+/g, "")}/${
                     event.id
                   }`}
                 >

@@ -77,7 +77,7 @@ const ComicPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     passHref
                     href="/characters/:name/:id"
                     as={`/characters/${character.name?.replace(
-                      /[^-a-zA-Z0-9]+/g,
+                      /[^a-zA-Z0-9]+/g,
                       ""
                     )}/${character.id}`}
                   >
@@ -124,7 +124,7 @@ const ComicPage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
                     passHref
                     href="/events/:title/:id"
                     as={`/events/${event.title?.replace(
-                      /[^-a-zA-Z0-9]+/g,
+                      /[^a-zA-Z0-9]+/g,
                       ""
                     )}/${event.id}`}
                   >

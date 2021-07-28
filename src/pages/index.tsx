@@ -50,7 +50,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
               <CardContainer
                 key={character.id}
                 onClick={handleNavigate(
-                  `/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}`
+                  `/characters/${character.name.replace(
+                    /[^a-zA-Z0-9]+/g,
+                    ""
+                  )}/${character.id}`
                 )}
                 alt={`Ir para detalhes de ${character.name}`}
                 title={`Ir para detalhes de ${character.name}`}
@@ -78,7 +81,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/characters/:name/:id/events"
-                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/events`}
+                        as={`/characters/${character.name.replace(
+                          /[^a-zA-Z0-9]+/g,
+                          ""
+                        )}/${character.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{character.events.available}</var>
@@ -89,7 +95,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/characters/:name/:id/comics/"
-                        as={`/characters/${character.name.replace(/[^a-zA-Z0-9]+/g, "")}/${character.id}/comics`}
+                        as={`/characters/${character.name.replace(
+                          /[^a-zA-Z0-9]+/g,
+                          ""
+                        )}/${character.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{character.comics.available}</var>
@@ -109,7 +118,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
               <CardContainer
                 key={comic.id}
                 onClick={handleNavigate(
-                  `/comics/${comic.title.replace(/[^-a-zA-Z0-9]+/g, "")}/${
+                  `/comics/${comic.title.replace(/[^a-zA-Z0-9]+/g, "")}/${
                     comic.id
                   }`
                 )}
@@ -132,7 +141,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                         passHref
                         href="/comics/:title/:id/characters"
                         as={`/comics/${comic.title.replace(
-                          /[^-a-zA-Z0-9]+/g,
+                          /[^a-zA-Z0-9]+/g,
                           ""
                         )}/${comic.id}/characters`}
                       >
@@ -146,7 +155,7 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                         passHref
                         href="/comics/:title/:id/events"
                         as={`/comics/${comic.title.replace(
-                          /[^-a-zA-Z0-9]+/g,
+                          /[^a-zA-Z0-9]+/g,
                           ""
                         )}/${comic.id}/events`}
                       >
@@ -167,7 +176,11 @@ export default function Home({ characters, comics, events }: HomePageProps) {
             {events?.map((event) => (
               <CardContainer
                 key={event.id}
-                onClick={handleNavigate(`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}`)}
+                onClick={handleNavigate(
+                  `/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${
+                    event.id
+                  }`
+                )}
                 alt={`Ir para detalhes de ${event.title}`}
                 title={`Ir para detalhes de ${event.title}`}
               >
@@ -186,7 +199,10 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                       <Link
                         passHref
                         href="/events/:title/:id/characters"
-                        as={`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}/characters`}
+                        as={`/events/${event.title.replace(
+                          /[^a-zA-Z0-9]+/g,
+                          ""
+                        )}/${event.id}/characters`}
                       >
                         <Card.Link>
                           Personagens: <var>{event.characters.available}</var>
@@ -196,8 +212,11 @@ export default function Home({ characters, comics, events }: HomePageProps) {
                     {event.comics.available > 0 && (
                       <Link
                         passHref
-                        href="/events/:title/:id/events"
-                        as={`/events/${event.title.replace(/[^a-zA-Z0-9]+/g, "")}/${event.id}/events`}
+                        href="/events/:title/:id/comics"
+                        as={`/events/${event.title.replace(
+                          /[^a-zA-Z0-9]+/g,
+                          ""
+                        )}/${event.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{event.comics.available}</var>

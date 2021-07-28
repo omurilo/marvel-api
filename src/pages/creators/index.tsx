@@ -77,7 +77,7 @@ export default function Creators({
                 key={creator.id}
                 onClick={handleNavigate(
                   `/creators/${creator.firstName.replace(
-                    /[^-a-zA-Z0-9]+/g,
+                    /[^a-zA-Z0-9]+/g,
                     ""
                   )}/${creator.id}`
                 )}
@@ -107,7 +107,7 @@ export default function Creators({
                       <Link
                         passHref
                         href="/creators/:name/:id/events"
-                        as={`/creators/${creator.fullName.replace(/[^-a-zA-Z0-9]+/g, "")}/${creator.id}/events`}
+                        as={`/creators/${creator.fullName.replace(/[^a-zA-Z0-9]+/g, "")}/${creator.id}/events`}
                       >
                         <Card.Link>
                           Eventos: <var>{creator.events.available}</var>
@@ -118,7 +118,7 @@ export default function Creators({
                       <Link
                         passHref
                         href="/creators/:name/:id/comics/"
-                        as={`/creators/${creator.fullName.replace(/[^-a-zA-Z0-9]+/g, "")}/${creator.id}/comics`}
+                        as={`/creators/${creator.fullName.replace(/[^a-zA-Z0-9]+/g, "")}/${creator.id}/comics`}
                       >
                         <Card.Link>
                           Quadrinhos: <var>{creator.comics.available}</var>
